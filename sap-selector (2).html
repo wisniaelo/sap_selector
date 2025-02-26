@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dobór Rozwiązań SAP</title>
+    <style>
+        :root {
+            --primary: #0f62fe;
+            --primary-dark: #0043ce;
+            --secondary: #6f6f6f;
+            --accent: #3ddbd9;
+            --light: #f4f4f4;
+            --dark: #333333;
+            --success: #42be65;
+            --danger: #da1e28;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f8f8;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 20px;
+        }
+        
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--primary);
+        }
+        
+        .main {
+            min-height: calc(100vh - 140px);
+            padding: 40px 0;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+        }
+        
+        p {
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a5a5a;
+        }
+        
+        .question-container {
+            margin-bottom: 30px;
+        }
+        
+        .question {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 15px;
+            background-color: var(--light);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover {
+            background-color: #e8e8e8;
+        }
+        
+        .option.selected {
+            background-color: rgba(15, 98, 254, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .checkbox, .radio {
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .result-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .card-header h3 {
+            color: white;
+            margin: 0;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .match-score {
+            display: inline-block;
+            background-color: var(--success);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .features {
+            margin-top: 15px;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .feature svg {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .card-footer {
+            padding: 15px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+        
+        footer {
+            background-color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 20px;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0 10px;
+            }
+            
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .deployment-options {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .deployment-option {
+            text-align: center;
+            padding: 15px;
+            background-color: var(--light);
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+            width: 30%;
+        }
+        
+        .deployment-option:hover {
+            background-color: #e8e8e8;
+        }
+        
+        .deployment-option.selected {
+            background-color: rgba(15, 98, 254, 0.1);
+            border: 2px solid var(--primary);
+        }
+        
+        .deployment-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        
+        .comparison-table th, .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table th {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .check-icon {
+            color: var(--success);
+        }
+        
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .cloud-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">SAP<span>Selector</span></div>
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showSection('welcome')">Start</a></li>
+                    <li><a href="#" onclick="showSection('about')">O Aplikacji</a></li>
+                    <li><a href="#" onclick="showSection('contact')">Kontakt</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main container">
+        <section id="welcome" class="section active">
+            <h1>Witaj w Aplikacji Doboru Rozwiązań SAP</h1>
+            <p>
+                Nasza inteligentna aplikacja pomoże Ci wybrać idealne rozwiązanie SAP dopasowane 
+                do potrzeb Twojej firmy. Niezależnie od branży, wielkości firmy czy specyficznych 
+                wymagań, znajdziemy dla Ciebie optymalne rozwiązania SAP z portfolio chmury 
+                publicznej i prywatnej.
+            </p>
+            <div class="deployment-options">
+                <div class="deployment-option" onclick="selectDeployment('all')">
+                    <div class="cloud-icon">☁️🏢</div>
+                    <h3>Wszystkie opcje</h3>
+                    <p>Pokaż rozwiązania w chmurze publicznej i prywatnej</p>
+                </div>
+                <div class="deployment-option" onclick="selectDeployment('public')">
+                    <div class="cloud-icon">☁️</div>
+                    <h3>Chmura publiczna</h3>
+                    <p>Skupiaj się tylko na rozwiązaniach chmury publicznej</p>
+                </div>
+                <div class="deployment-option" onclick="selectDeployment('private')">
+                    <div class="cloud-icon">🏢</div>
+                    <h3>Chmura prywatna</h3>
+                    <p>Skupiaj się tylko na rozwiązaniach chmury prywatnej</p>
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="btn" onclick="startQuestionnaire()">Rozpocznij dobór rozwiązania</button>
+                <button class="btn btn-secondary" onclick="showSection('about')">Dowiedz się więcej</button>
+            </div>
+        </section>
+
+        <section id="about" class="section">
+            <h1>O Aplikacji</h1>
+            <p>
+                SAP Selector to intuicyjne narzędzie zaprojektowane, aby pomóc firmom w wyborze 
+                optymalnych rozwiązań SAP. Nasza aplikacja analizuje potrzeby Twojej firmy i 
+                dopasowuje je do odpowiednich rozwiązań SAP z szerokiego portfolio.
+            </p>
+            <h2>Jak to działa?</h2>
+            <p>
+                Proces wyboru jest prosty i intuicyjny. Wystarczy odpowiedzieć na kilka pytań
+                dotyczących Twojej firmy, określić preferencje wdrożeniowe i otrzymać
+                spersonalizowane rekomendacje. Następnie możesz porównać rozwiązania i wybrać
+                najlepsze dla swojej organizacji.
+            </p>
+            <h2>Nasze portfolio rozwiązań SAP</h2>
+            <div>
+                <h3>Chmura publiczna</h3>
+                <p>SAP S/4HANA Cloud, SuccessFactors, Ariba, Customer Experience, BTP</p>
+                
+                <h3>Chmura prywatna</h3>
+                <p>SAP S/4HANA Private Cloud, Business Suite, Business One, tradycyjne rozwiązania ERP</p>
+            </div>
+            <div class="buttons">
+                <button class="btn" onclick="startQuestionnaire()">Rozpocznij dobór rozwiązania</button>
+                <button class="btn btn-secondary" onclick="showSection('welcome')">Powrót</button>
+            </div>
+        </section>
+
+        <section id="questionnaire" class="section">
+            <h1>Dobór Rozwiązania SAP</h1>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div id="question-container" class="question-container">
+                <!-- Pytania będą dynamicznie wstawiane tutaj -->
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-secondary" id="prev-btn" onclick="prevQuestion()">Wstecz</button>
+                <button class="btn" id="next-btn" onclick="nextQuestion()">Dalej</button>
+            </div>
+        </section>
+
+        <section id="results" class="section">
+            <h1>Rekomendowane Rozwiązania SAP</h1>
+            <p>
+                Na podstawie Twoich odpowiedzi, rekomendujemy następujące rozwiązania SAP. 
+                Rozwiązania są posortowane według stopnia dopasowania do Twoich potrzeb.
+            </p>
+            
+            <div id="results-container" class="results-container">
+                <!-- Wyniki będą dynamicznie wstawiane tutaj -->
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-secondary" onclick="restartQuestionnaire()">Rozpocznij ponownie</button>
+                <button class="btn" onclick="showSection('comparison')">Porównaj rozwiązania</button>
+                <button class="btn" onclick="showSection('contact')">Skontaktuj się z nami</button>
+            </div>
+        </section>
+
+        <section id="comparison" class="section">
+            <h1>Porównanie Rozwiązań SAP</h1>
+            <p>
+                Poniżej znajduje się szczegółowe porównanie rekomendowanych rozwiązań SAP.
+                Tabela pomoże Ci lepiej zrozumieć różnice między poszczególnymi rozwiązaniami.
+            </p>
+            
+            <div id="comparison-container">
+                <!-- Tabela porównawcza będzie dynamicznie wstawiana tutaj -->
+            </div>
+            
+            <div class="buttons" style="margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="showSection('results')">Powrót do wyników</button>
+                <button class="btn" onclick="showSection('contact')">Skontaktuj się z nami</button>
+            </div>
+        </section>
+
+        <section id="contact" class="section">
+            <h1>Skontaktuj się z nami</h1>
+            <p>
+                Potrzebujesz więcej informacji lub chcesz omówić szczegóły wdrożenia? 
+                Skontaktuj się z naszymi ekspertami SAP, którzy chętnie odpowiedzą na Twoje pytania.
+            </p>
+            
+            <div class="contact-form">
+                <div class="form-group">
+                    <label for="name">Imię i nazwisko</label>
+                    <input type="text" id="name" class="form-control" placeholder="Wprowadź swoje imię i nazwisko">
+                </div>
+                
+                <div class="form-group">
+                    <label for="company">Nazwa firmy</label>
+                    <input type="text" id="company" class="form-control" placeholder="Wprowadź nazwę firmy">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Adres e-mail</label>
+                    <input type="email" id="email" class="form-control" placeholder="Wprowadź adres e-mail">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Numer telefonu</label>
+                    <input type="tel" id="phone" class="form-control" placeholder="Wprowadź numer telefonu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Wiadomość</label>
+                    <textarea id="message" class="form-control" placeholder="Opisz swoje potrzeby lub zadaj pytanie"></textarea>
+                </div>
+                
+                <button class="btn" style="width: 100%;" onclick="submitContactForm()">Wyślij wiadomość</button>
+            </div>
+            
+            <div class="buttons" style="margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="showSection('results')">Powrót do wyników</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SAP Selector. Wszystkie prawa zastrzeżone.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Dane aplikacji
+        const sapSolutions = [
+            {
+                id: 1,
+                name: "SAP S/4HANA Cloud (Public Edition)",
+                description: "Kompleksowe rozwiązanie ERP w chmurze publicznej z wbudowaną analityką i sztuczną inteligencją.",
+                deployment: "public",
+                features: [
+                    "Zintegrowana analityka w czasie rzeczywistym",
+                    "Automatyzacja procesów biznesowych",
+                    "Regularne aktualizacje i innowacje",
+                    "Skalowalność i elastyczność",
+                    "Niższe koszty infrastruktury IT"
+                ],
+                bestFor: "Firmy szukające nowoczesnego, elastycznego rozwiązania ERP z szybkim wdrożeniem",
+                priceRange: "Wysoki (model subskrypcyjny)",
+                implementationTime: "3-6 miesięcy",
+                customizationLevel: "Ograniczony (konfiguracja)",
+                industrySpecific: false
+            },
+            {
+                id: 2,
+                name: "SAP S/4HANA (Private Cloud Edition)",
+                description: "Kompleksowe rozwiązanie ERP w chmurze prywatnej, oferujące większą kontrolę i możliwości dostosowania.",
+                deployment: "private",
+                features: [
+                    "Pełna kontrola nad środowiskiem",
+                    "Rozszerzone możliwości dostosowania",
+                    "Analityka w czasie rzeczywistym",
+                    "Integracja z innymi systemami SAP",
+                    "Wyższy poziom bezpieczeństwa danych"
+                ],
+                bestFor: "Duże przedsiębiorstwa z złożonymi procesami i wysokimi wymaganiami dotyczącymi bezpieczeństwa",
+                priceRange: "Bardzo wysoki (model subskrypcyjny + infrastruktura)",
+                implementationTime: "6-12 miesięcy",
+                customizationLevel: "Wysoki",
+                industrySpecific: false
+            },
+            {
+                id: 3,
+                name: "SAP Business Suite (On-Premise)",
+                description: "Tradycyjne rozwiązanie ERP do instalacji lokalnej, oferujące pełną kontrolę i maksymalną możliwość dostosowania.",
+                deployment: "private",
+                features: [
+                    "Pełna kontrola nad środowiskiem i danymi",
+                    "Maksymalne możliwości dostosowania",
+                    "Bogata funkcjonalność dla różnych branż",
+                    "Integracja z innymi systemami",
+                    "Długoterminowe wsparcie"
+                ],
+                bestFor: "Duże organizacje z istniejącą infrastrukturą IT i specyficznymi wymaganiami",
+                priceRange: "Wysoki (licencje + utrzymanie)",
+                implementationTime: "12-24 miesięcy",
+                customizationLevel: "Bardzo wysoki",
+                industrySpecific: false
+            },
+            {
+                id: 4,
+                name: "SAP Business One",
+                description: "Kompleksowe rozwiązanie ERP dla małych i średnich firm, dostępne w chmurze prywatnej lub on-premise.",
+                deployment: "private",
+                features: [
+                    "Przystępna cena dla MŚP",
+                    "Szybkie wdrożenie",
+                    "Integracja sprzedaży, finansów i operacji",
+                    "Dostęp mobilny",
+                    "Możliwość rozbudowy"
+                ],
+                bestFor: "Małe i średnie firmy szukające kompleksowego, ale przystępnego rozwiązania",
+                priceRange: "Średni (licencje per użytkownik)",
+                implementationTime: "2-4 miesiące",
+                customizationLevel: "Średni",
+                industrySpecific: false
+            },
+            {
+                id: 5,
+                name: "SAP SuccessFactors",
+                description: "Kompleksowe rozwiązanie HCM w chmurze publicznej do zarządzania talentami i kapitałem ludzkim.",
+                deployment: "public",
+                features: [
+                    "Rekrutacja i onboarding",
+                    "Zarządzanie wydajnością",
+                    "Rozwój pracowników",
+                    "Analityka HR",
+                    "Administracja personelem"
+                ],
+                bestFor: "Firmy chcące zoptymalizować procesy HR i poprawić zarządzanie talentami",
+                priceRange: "Średni (model subskrypcyjny per użytkownik)",
+                implementationTime: "3-6 miesięcy",
+                customizationLevel: "Średni",
+                industrySpecific: false
+            },
+            {
+                id: 6,
+                name: "SAP Ariba",
+                description: "Platforma w chmurze publicznej do zarządzania zakupami, dostawcami i wydatkami.",
+                deployment: "public",
+                features: [
+                    "Optymalizacja łańcucha dostaw",
+                    "Zarządzanie dostawcami",
+                    "Kontrola wydatków",
+                    "Analityka zakupowa",
+                    "Integracja z systemami ERP"
+                ],
+                bestFor: "Firmy chcące zoptymalizować procesy zakupowe i łańcuch dostaw",
+                priceRange: "Średni-Wysoki (model subskrypcyjny)",
+                implementationTime: "3-6 miesięcy",
+                customizationLevel: "Średni",
+                industrySpecific: false
+            },
+            {
+                id: 7,
+                name: "SAP Customer Experience (CX)",
+                description: "Zestaw rozwiązań w chmurze publicznej do zarządzania doświadczeniem klienta i procesami sprzedaży.",
+                deployment: "public",
+                features: [
+                    "Zarządzanie relacjami z klientami (CRM)",
+                    "Marketing i handel elektroniczny",
+                    "Obsługa klienta",
+                    "Personalizacja doświadczeń klienta",
+                    "Analityka zachowań klientów"
+                ],
+                bestFor: "Firmy skupione na optymalizacji obsługi klienta i zwiększeniu sprzedaży",
+                priceRange: "Średni-Wysoki (model subskrypcyjny)",
+                implementationTime: "3-6 miesięcy",
+                customizationLevel: "Średni",
+                industrySpecific: false
+            },
+            {
+                id: 8,
+                name: "SAP Business Technology Platform (BTP)",
+                description: "Platforma w chmurze publicznej do tworzenia, rozszerzania i integracji aplikacji biznesowych.",
+                deployment: "public",
+                features: [
+                    "Rozwój aplikacji biznesowych",
+                    "Integracja systemów",
+                    "Analityka danych i sztuczna inteligencja",
+                    "Internet rzeczy (IoT)",
+                    "Automatyzacja procesów"
+                ],
+                bestFor: "Firmy potrzebujące elastycznej platformy do integracji i rozszerzania swoich systemów",
+                priceRange: "Zmienny (zależy od usług)",
+                implementationTime: "Zmienny (zależy od projektu)",
+                customizationLevel: "Bardzo wysoki",
+                industrySpecific: false
+            }
+        ];
+
+        const questions = [
+            {
+                id: 1,
+                text: "Jaka jest wielkość Twojej firmy?",
+                tooltip: "Wielkość firmy może wpływać na wybór odpowiedniego rozwiązania SAP.",
+                multiSelect: false,
+                options: [
+                    { value: "small", text: "Mała (do 50 pracowników)" },
+                    { value: "medium", text: "Średnia (50-250 pracowników)" },
+                    { value: "large", text: "Duża (250-1000 pracowników)" },
+                    { value: "enterprise", text: "Korporacja (ponad 1000 pracowników)" }
+                ]
+            },
+            {
+                id: 2,
+                text: "Jakie obszary biznesowe chcesz zoptymalizować? (możliwy wybór wielu opcji)",
+                tooltip: "Wybierz obszary, które są najważniejsze dla Twojej firmy w kontekście wdrożenia SAP.",
+                multiSelect: true,
+                options: [
+                    { value: "erp", text: "Kompleksowe zarządzanie przedsiębiorstwem (ERP)" },
+                    { value: "hr", text: "Zarządzanie kapitałem ludzkim (HCM)" },
+                    { value: "procurement", text: "Zakupy i łańcuch dostaw" },
+                    { value: "crm", text: "Obsługa klienta i sprzedaż" },
+                    { value: "platform", text: "Platforma do integracji i rozwijania aplikacji" }
+                ]
+            },
+            {
+                id: 3,
+                text: "Jakie są Twoje preferencje dotyczące wdrożenia?",
+                tooltip: "Model wdrożenia wpływa na koszty, kontrolę nad systemem i odpowiedzialność za infrastrukturę.",
+                multiSelect: false,
+                options: [
+                    { value: "fast", text: "Szybkie wdrożenie z minimalną konfiguracją" },
+                    { value: "customized", text: "Dostosowane rozwiązanie z dłuższym czasem wdrożenia" },
+                    { value: "balanced", text: "Zbalansowane podejście (średni czas i poziom dostosowania)" }
+                ]
+            },
+            {
+                id: 4,
+                text: "Jak istotne są dla Ciebie możliwości dostosowania systemu?",
+                tooltip: "Wyższy poziom dostosowania zwykle wiąże się z dłuższym czasem wdrożenia i wyższymi kosztami.",
+                multiSelect: false,
+                options: [
+                    { value: "low", text: "Niskie (standardowe rozwiązanie z minimalną konfiguracją)" },
+                    { value: "medium", text: "Średnie (standardowe rozwiązanie z konfiguracją)" },
+                    { value: "high", text: "Wysokie (znaczne dostosowanie do specyficznych procesów)" },
+                    { value: "very_high", text: "Bardzo wysokie (pełna kontrola i możliwość modyfikacji)" }
+                ]
+            },
+            {
+                id: 5,
+                text: "Jakie kwestie kosztowe są dla Ciebie ważne? (możliwy wybór wielu opcji)",
+                tooltip: "Model finansowania może wpływać na przepływy pieniężne i strukturę kosztów.",
+                multiSelect: true,
+                options: [
+                    { value: "capex", text: "Preferuję model CAPEX (jednorazowe licencje)" },
+                    { value: "opex", text: "Preferuję model OPEX (subskrypcja)" },
+                    { value: "low_cost", text: "Szukam najbardziej ekonomicznego rozwiązania" },
+                    { value: "best_value", text: "Najlepsza wartość za rozsądną cenę" }
+                ]
+            },
+            {
+                id: 6,
+                text: "Jak istotne są dla Ciebie kwestie bezpieczeństwa i zgodności z przepisami?",
+                tooltip: "Wyższe wymagania bezpieczeństwa mogą wpływać na wybór modelu wdrożenia.",
+                multiSelect: false,
+                options: [
+                    { value: "standard", text: "Standardowe zabezpieczenia są wystarczające" },
+                    { value: "enhanced", text: "Potrzebuję podwyższonych standardów bezpieczeństwa" },
+                    { value: "highest", text: "Najwyższy poziom bezpieczeństwa jest kluczowy (np. dane wrażliwe)" },
+                    { value: "regulatory", text: "Działamy w branży silnie regulowanej z dodatkowymi wymogami" }
+                ]
+            }
+        ];
+
+        // Zmienne aplikacji
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let selectedDeployment = "all";
+        let filteredSolutions = [];
+
+        // Inicjalizacja aplikacji
+        function init() {
+            // Ukryj przycisk "Wstecz" na pierwszym pytaniu
+            document.getElementById('prev-btn').style.display = 'none';
+        }
+
+        // Wybór preferowanego wdrożenia (chmura publiczna/prywatna)
+        function selectDeployment(type) {
+            selectedDeployment = type;
+            const options = document.querySelectorAll('.deployment-option');
+            options.forEach(option => option.classList.remove('selected'));
+            
+            const selected = document.querySelector(`.deployment-option:nth-child(${type === 'all' ? 1 : type === 'public' ? 2 : 3})`);
+            if (selected) {
+                selected.classList.add('selected');
+            }
+        }
+
+        // Rozpoczęcie kwestionariusza
+        function startQuestionnaire() {
+            showSection('questionnaire');
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            displayCurrentQuestion();
+        }
+
+        // Restart kwestionariusza
+        function restartQuestionnaire() {
+            showSection('welcome');
+            currentQuestionIndex = 0;
+            userAnswers = {};
+        }
+
+        // Wyświetlanie aktywnej sekcji
+        function showSection(sectionId) {
+            // Ukryj wszystkie sekcje
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
+            
+            // Pokaż wybraną sekcję
+            const activeSection = document.getElementById(sectionId);
+            if (activeSection) {
+                activeSection.classList.add('active');
+                activeSection.style.display = 'block';
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Wyświetlanie bieżącego pytania
+        function displayCurrentQuestion() {
+            const questionContainer = document.getElementById('question-container');
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            // Aktualizuj pasek postępu
+            const progressPercentage = ((currentQuestionIndex) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+            
+            // Ukryj lub pokaż przycisk "Wstecz" w zależności od indeksu pytania
+            document.getElementById('prev-btn').style.display = currentQuestionIndex === 0 ? 'none' : 'block';
+            
+            // Zmień tekst przycisku "Dalej" na ostatnim pytaniu
+            document.getElementById('next-btn').textContent = currentQuestionIndex === questions.length - 1 ? 'Pokaż wyniki' : 'Dalej';
+            
+            // Generuj HTML dla pytania
+            let questionHTML = `
+                <div class="question">
+                    ${currentQuestion.text}
+                    <div class="tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 16v-4"></path>
+                            <path d="M12 8h.01"></path>
+                        </svg>
+                        <span class="tooltip-text">${currentQuestion.tooltip}</span>
+                    </div>
+                </div>
+                <div class="options">
+            `;
+            
+            currentQuestion.options.forEach(option => {
+                let isSelected = false;
+                
+                if (currentQuestion.multiSelect && Array.isArray(userAnswers[currentQuestion.id])) {
+                    isSelected = userAnswers[currentQuestion.id].includes(option.value);
+                } else {
+                    isSelected = userAnswers[currentQuestion.id] === option.value;
+                }
+                
+                questionHTML += `
+                    <div class="option ${isSelected ? 'selected' : ''}" 
+                         data-value="${option.value}" 
+                         onclick="selectOption(${currentQuestion.id}, '${option.value}')">
+                        ${currentQuestion.multiSelect ? 
+                           `<span class="checkbox">${isSelected ? '☑' : '☐'}</span>` : 
+                           `<span class="radio">${isSelected ? '⬤' : '○'}</span>`}
+                        ${option.text}
+                    </div>
+                `;
+            });
+            
+            questionHTML += '</div>';
+            questionContainer.innerHTML = questionHTML;
+        }
+
+        // Wybór opcji w pytaniu
+        function selectOption(questionId, optionValue) {
+            const currentQuestion = questions.find(q => q.id === questionId);
+            
+            if (currentQuestion.multiSelect) {
+                // Wielokrotny wybór - inicjalizuj tablicę odpowiedzi, jeśli nie istnieje
+                if (!userAnswers[questionId] || !Array.isArray(userAnswers[questionId])) {
+                    userAnswers[questionId] = [];
+                }
+                
+                // Dodaj lub usuń wartość z tablicy odpowiedzi
+                const index = userAnswers[questionId].indexOf(optionValue);
+                if (index === -1) {
+                    userAnswers[questionId].push(optionValue);
+                } else {
+                    userAnswers[questionId].splice(index, 1);
+                }
+                
+                // Zaktualizuj wizualnie wszystkie opcje dla tego pytania
+                const options = document.querySelectorAll('.option');
+                options.forEach(option => {
+                    const optVal = option.getAttribute('data-value');
+                    if (optVal && userAnswers[questionId].includes(optVal)) {
+                        option.classList.add('selected');
+                    } else if (optVal) {
+                        option.classList.remove('selected');
+                    }
+                });
+            } else {
+                // Pojedynczy wybór
+                userAnswers[questionId] = optionValue;
+                
+                // Zaktualizuj wizualnie wszystkie opcje dla tego pytania
+                const options = document.querySelectorAll('.option');
+                options.forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Znajdź i zaznacz wybraną opcję
+                document.querySelectorAll(`.option[data-value="${optionValue}"]`).forEach(option => {
+                    option.classList.add('selected');
+                });
+            }
+        }
+
+        // Przejście do następnego pytania
+        function nextQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            // Sprawdź, czy użytkownik wybrał opcję dla bieżącego pytania
+            if (!userAnswers[currentQuestion.id] || 
+                (currentQuestion.multiSelect && Array.isArray(userAnswers[currentQuestion.id]) && userAnswers[currentQuestion.id].length === 0)) {
+                alert('Proszę wybrać przynajmniej jedną z opcji przed przejściem dalej.');
+                return;
+            }
+            
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayCurrentQuestion();
+            } else {
+                calculateResults();
+                showSection('results');
+            }
+        }
+
+        // Przejście do poprzedniego pytania
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayCurrentQuestion();
+            }
+        }
+
+        // Obliczanie wyników
+        function calculateResults() {
+            // Filtruj rozwiązania według wybranego typu wdrożenia
+            if (selectedDeployment === "all") {
+                filteredSolutions = [...sapSolutions];
+            } else {
+                filteredSolutions = sapSolutions.filter(solution => solution.deployment === selectedDeployment);
+            }
+            
+            // Oblicz wyniki dopasowania dla każdego rozwiązania
+            filteredSolutions.forEach(solution => {
+                let matchScore = 0;
+                
+                // Wielkość firmy (pytanie 1)
+                if (userAnswers[1] === "small" && (solution.id === 4)) {
+                    matchScore += 20;
+                } else if (userAnswers[1] === "medium" && (solution.id === 1 || solution.id === 4)) {
+                    matchScore += 20;
+                } else if (userAnswers[1] === "large" && (solution.id === 1 || solution.id === 2)) {
+                    matchScore += 20;
+                } else if (userAnswers[1] === "enterprise" && (solution.id === 2 || solution.id === 3)) {
+                    matchScore += 20;
+                }
+                
+                // Obszar biznesowy (pytanie 2) - wielokrotny wybór
+                if (Array.isArray(userAnswers[2])) {
+                    // Sprawdź, które obszary biznesowe zostały wybrane
+                    if (userAnswers[2].includes("erp") && (solution.id === 1 || solution.id === 2 || solution.id === 3 || solution.id === 4)) {
+                        matchScore += 15;
+                    }
+                    if (userAnswers[2].includes("hr") && solution.id === 5) {
+                        matchScore += 15;
+                    }
+                    if (userAnswers[2].includes("procurement") && solution.id === 6) {
+                        matchScore += 15;
+                    }
+                    if (userAnswers[2].includes("crm") && solution.id === 7) {
+                        matchScore += 15;
+                    }
+                    if (userAnswers[2].includes("platform") && solution.id === 8) {
+                        matchScore += 15;
+                    }
+                } else if (userAnswers[2]) {
+                    // Obsługa pojedynczego wyboru (dla kompatybilności wstecznej)
+                    if (userAnswers[2] === "erp" && (solution.id === 1 || solution.id === 2 || solution.id === 3 || solution.id === 4)) {
+                        matchScore += 25;
+                    } else if (userAnswers[2] === "hr" && solution.id === 5) {
+                        matchScore += 25;
+                    } else if (userAnswers[2] === "procurement" && solution.id === 6) {
+                        matchScore += 25;
+                    } else if (userAnswers[2] === "crm" && solution.id === 7) {
+                        matchScore += 25;
+                    } else if (userAnswers[2] === "platform" && solution.id === 8) {
+                        matchScore += 25;
+                    }
+                }
+                
+                // Preferencje wdrożenia (pytanie 3)
+                if (userAnswers[3] === "fast" && solution.deployment === "public") {
+                    matchScore += 15;
+                } else if (userAnswers[3] === "customized" && solution.deployment === "private") {
+                    matchScore += 15;
+                } else if (userAnswers[3] === "balanced") {
+                    matchScore += 10;
+                }
+                
+                // Możliwości dostosowania (pytanie 4)
+                const customizationLevels = {
+                    "low": ["Ograniczony"],
+                    "medium": ["Ograniczony", "Średni"],
+                    "high": ["Średni", "Wysoki"],
+                    "very_high": ["Wysoki", "Bardzo wysoki"]
+                };
+                
+                if (customizationLevels[userAnswers[4]]?.includes(solution.customizationLevel)) {
+                    matchScore += 15;
+                }
+                
+                // Model finansowania (pytanie 5) - wielokrotny wybór
+                if (Array.isArray(userAnswers[5])) {
+                    // Sprawdź, które preferencje kosztowe zostały wybrane
+                    if (userAnswers[5].includes("capex") && solution.deployment === "private") {
+                        matchScore += 5;
+                    }
+                    if (userAnswers[5].includes("opex") && solution.deployment === "public") {
+                        matchScore += 5;
+                    }
+                    if (userAnswers[5].includes("low_cost") && (solution.id === 4 || solution.id === 8)) {
+                        matchScore += 5;
+                    }
+                    if (userAnswers[5].includes("best_value")) {
+                        matchScore += 5;
+                    }
+                } else if (userAnswers[5]) {
+                    // Obsługa pojedynczego wyboru (dla kompatybilności wstecznej)
+                    if (userAnswers[5] === "capex" && solution.deployment === "private") {
+                        matchScore += 10;
+                    } else if (userAnswers[5] === "opex" && solution.deployment === "public") {
+                        matchScore += 10;
+                    } else if (userAnswers[5] === "low_cost" && (solution.id === 4 || solution.id === 8)) {
+                        matchScore += 10;
+                    } else if (userAnswers[5] === "best_value") {
+                        matchScore += 5;
+                    }
+                }
+                
+                // Bezpieczeństwo i zgodność (pytanie 6)
+                if (userAnswers[6] === "standard") {
+                    matchScore += 5;
+                } else if (userAnswers[6] === "enhanced" && (solution.deployment === "public" || solution.deployment === "private")) {
+                    matchScore += 10;
+                } else if ((userAnswers[6] === "highest" || userAnswers[6] === "regulatory") && solution.deployment === "private") {
+                    matchScore += 15;
+                }
+                
+                solution.matchScore = matchScore;
+            });
+            
+            // Sortuj rozwiązania według wyniku dopasowania (od najwyższego do najniższego)
+            filteredSolutions.sort((a, b) => b.matchScore - a.matchScore);
+            
+            // Ogranicz listę do najlepszych 3-4 rozwiązań
+            filteredSolutions = filteredSolutions.slice(0, 4);
+            
+            // Wyświetl wyniki
+            displayResults();
+            
+            // Wygeneruj tabelę porównawczą
+            generateComparisonTable();
+        }
+
+        // Wyświetlanie wyników
+        function displayResults() {
+            const resultsContainer = document.getElementById('results-container');
+            let resultsHTML = '';
+            
+            filteredSolutions.forEach(solution => {
+                resultsHTML += `
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3>${solution.name}</h3>
+                        </div>
+                        <div class="card-body">
+                            <span class="match-score">Dopasowanie: ${solution.matchScore}%</span>
+                            <p>${solution.description}</p>
+                            <p><strong>Najlepsze dla:</strong> ${solution.bestFor}</p>
+                            <div class="features">
+                                <strong>Kluczowe cechy:</strong>
+                                ${solution.features.map(feature => `
+                                    <div class="feature">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="9 11 12 14 22 4"></polyline>
+                                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                                        </svg>
+                                        ${feature}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <p><strong>Wdrożenie:</strong> ${solution.implementationTime}</p>
+                            <p><strong>Poziom customizacji:</strong> ${solution.customizationLevel}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsContainer.innerHTML = resultsHTML;
+        }
+
+        // Generowanie tabeli porównawczej
+        function generateComparisonTable() {
+            const comparisonContainer = document.getElementById('comparison-container');
+            
+            let tableHTML = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Cecha</th>
+                            ${filteredSolutions.map(solution => `<th>${solution.name}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Typ wdrożenia</td>
+                            ${filteredSolutions.map(solution => `
+                                <td>${solution.deployment === 'public' ? 'Chmura publiczna' : 'Chmura prywatna'}</td>
+                            `).join('')}
+                        </tr>
+                        <tr>
+                            <td>Czas wdrożenia</td>
+                            ${filteredSolutions.map(solution => `<td>${solution.implementationTime}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <td>Poziom dostosowania</td>
+                            ${filteredSolutions.map(solution => `<td>${solution.customizationLevel}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <td>Przedział cenowy</td>
+                            ${filteredSolutions.map(solution => `<td>${solution.priceRange}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <td>Najlepsze dla</td>
+                            ${filteredSolutions.map(solution => `<td>${solution.bestFor}</td>`).join('')}
+                        </tr>
+            `;
+            
+            // Dodaj wiersze dla kluczowych cech
+            const allFeatures = [];
+            filteredSolutions.forEach(solution => {
+                solution.features.forEach(feature => {
+                    if (!allFeatures.includes(feature)) {
+                        allFeatures.push(feature);
+                    }
+                });
+            });
+            
+            allFeatures.forEach(feature => {
+                tableHTML += `
+                    <tr>
+                        <td>${feature}</td>
+                        ${filteredSolutions.map(solution => `
+                            <td>${solution.features.includes(feature) ? 
+                                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-icon"><polyline points="20 6 9 17 4 12"></polyline></svg>' : 
+                                '-'}</td>
+                        `).join('')}
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            comparisonContainer.innerHTML = tableHTML;
+        }
+
+        // Obsługa formularza kontaktowego
+        function submitContactForm() {
+            const name = document.getElementById('name').value;
+            const company = document.getElementById('company').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const message = document.getElementById('message').value;
+            
+            // Walidacja formularza
+            if (!name || !company || !email || !phone || !message) {
+                alert('Proszę wypełnić wszystkie pola formularza.');
+                return;
+            }
+            
+            // W rzeczywistej aplikacji tutaj byłoby wysyłanie formularza
+            alert('Dziękujemy za kontakt! Nasz ekspert SAP skontaktuje się z Tobą wkrótce.');
+            
+            // Wyczyść formularz
+            document.getElementById('name').value = '';
+            document.getElementById('company').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('message').value = '';
+        }
+
+        // Inicjalizacja po załadowaniu strony
+        window.onload = init;
+    </script>
+</body>
+</html>
